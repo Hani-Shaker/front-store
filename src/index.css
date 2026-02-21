@@ -1,0 +1,129 @@
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 40 20% 98%;
+    --foreground: 200 25% 10%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 200 25% 10%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 200 25% 10%;
+
+    --primary: 174 62% 28%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 40 30% 94%;
+    --secondary-foreground: 200 25% 10%;
+
+    --muted: 40 15% 93%;
+    --muted-foreground: 200 10% 45%;
+
+    --accent: 38 90% 55%;
+    --accent-foreground: 200 25% 10%;
+
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 40 15% 88%;
+    --input: 40 15% 88%;
+    --ring: 174 62% 28%;
+
+    --radius: 0.75rem;
+
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-primary: 240 5.9% 10%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 240 4.8% 95.9%;
+    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+
+    /* Custom tokens */
+    --gold: 38 90% 55%;
+    --gold-light: 40 85% 70%;
+    --gold-dark: 36 90% 42%;
+    --teal: 174 62% 28%;
+    --teal-light: 174 45% 45%;
+    --teal-dark: 174 70% 18%;
+    --badge-new: 145 60% 42%;
+    --badge-bestseller: 38 90% 55%;
+    --badge-sale: 0 72% 51%;
+    --gradient-hero: linear-gradient(135deg, hsl(174 62% 28%), hsl(174 70% 18%));
+    --gradient-gold: linear-gradient(135deg, hsl(38 90% 55%), hsl(40 85% 70%));
+    --shadow-card: 0 4px 20px -4px hsl(200 25% 10% / 0.08);
+    --shadow-card-hover: 0 12px 32px -8px hsl(200 25% 10% / 0.15);
+    --shadow-nav: 0 2px 16px -2px hsl(200 25% 10% / 0.06);
+  }
+
+  .dark {
+    --background: 200 25% 6%;
+    --foreground: 40 20% 95%;
+    --card: 200 20% 10%;
+    --card-foreground: 40 20% 95%;
+    --popover: 200 20% 10%;
+    --popover-foreground: 40 20% 95%;
+    --primary: 174 55% 40%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 200 15% 15%;
+    --secondary-foreground: 40 20% 95%;
+    --muted: 200 15% 15%;
+    --muted-foreground: 200 10% 55%;
+    --accent: 38 80% 55%;
+    --accent-foreground: 200 25% 10%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 200 15% 18%;
+    --input: 200 15% 18%;
+    --ring: 174 55% 40%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html {
+    direction: rtl;
+  }
+
+  body {
+    @apply bg-background text-foreground font-cairo antialiased;
+  }
+}
+
+@layer utilities {
+  .text-gradient-gold {
+    background: linear-gradient(135deg, hsl(38 90% 55%), hsl(40 85% 70%));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .bg-gradient-hero {
+    background: linear-gradient(135deg, hsl(174 62% 28%), hsl(174 70% 18%));
+  }
+
+  .bg-gradient-gold {
+    background: linear-gradient(135deg, hsl(38 90% 55%), hsl(40 85% 70%));
+  }
+
+  .shadow-card {
+    box-shadow: var(--shadow-card);
+  }
+
+  .shadow-card-hover {
+    box-shadow: var(--shadow-card-hover);
+  }
+
+  .shadow-nav {
+    box-shadow: var(--shadow-nav);
+  }
+}
