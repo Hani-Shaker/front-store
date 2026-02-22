@@ -7,6 +7,7 @@ import { toast } from 'sonner';
 import { Link } from 'react-router-dom';
 
 const DELIVERY_FEE = 50;
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
 const Cart = () => {
   const { items, removeFromCart, updateQuantity, totalPrice, clearCart } = useCart();
@@ -21,7 +22,10 @@ const Cart = () => {
       toast.error('يرجى ملء جميع الحقول المطلوبة');
       return;
     }
-    if (items.length === 0) { toast.error('السلة فارغة!'); return; }
+    if (items.length === 0) { 
+      toast.error('السلة فارغة!'); 
+      return; 
+    }
 
     setSending(true);
     try {
@@ -32,10 +36,10 @@ const Cart = () => {
         quantity: i.quantity,
         selectedColor: i.selectedColor,
         image: i.product.image,
-        category: i.product.category,
+        category: i.product.category || 'عام',
       }));
 
-      const res = await fetch('/api/orders', {
+      const res = await fetch(`${API_URL}/api/orders`, {  // ← استخدم API_URL
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -53,8 +57,9 @@ const Cart = () => {
       } else {
         toast.error(data.message || 'حدث خطأ');
       }
-    } catch {
-      toast.error('تعذر الاتصال بالسيرفر');
+    } catch (error) {
+      console.error('Order error:', error);
+      toast.error('تعذر الاتصال بالسيرفر. تأكد من أن الباك اند يعمل');
     } finally {
       setSending(false);
     }
@@ -87,7 +92,7 @@ const Cart = () => {
                 <img src={item.product.image} alt={item.product.name} className="w-20 h-20 rounded-lg object-cover flex-shrink-0" />
                 <div className="flex-1 min-w-0">
                   <h4 className="text-sm font-bold text-card-foreground truncate">{item.product.name}</h4>
-                  <p className="text-xs text-muted-foreground">{item.product.category}</p>
+                  <p className="text-xs text-muted-foreground">{item.product.category || 'عام'}</p>
                   <div className="flex items-center gap-1.5 mt-1">
                     <span className="w-3.5 h-3.5 rounded-full border border-border" style={{ backgroundColor: item.selectedColor }} />
                     <span className="text-xs text-muted-foreground">{item.product.price} ج.م</span>

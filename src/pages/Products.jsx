@@ -1,29 +1,77 @@
-import { useState, useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import Layout from '../components/layout/Layout.jsx';
 import ProductCard from '../components/ProductCard.jsx';
 import SectionTitle from '../components/SectionTitle.jsx';
-import { products, categories } from '../data/products.js';
+import { getProducts, categories } from '../data/products.js';
 import { Search } from 'lucide-react';
 
 const PAGE_SIZE = 9;
 
 const Products = () => {
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [search, setSearch] = useState('');
   const [category, setCategory] = useState('الكل');
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
+
+  // جلب المنتجات عند تحميل الصفحة
+  useEffect(() => {
+    loadProducts();
+  }, []);
+
+  const loadProducts = async () => {
+    setLoading(true);
+    try {
+      const data = await getProducts();
+      setProducts(data);
+      setError(null);
+    } catch (err) {
+      setError('فشل تحميل المنتجات');
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const filtered = useMemo(() => {
     let list = products;
     if (category !== 'الكل') list = list.filter((p) => p.category === category);
     if (search.trim()) {
       const q = search.trim().toLowerCase();
-      list = list.filter((p) => p.name.toLowerCase().includes(q) || p.category.toLowerCase().includes(q));
+      list = list.filter((p) => p.name.toLowerCase().includes(q) || (p.category || '').toLowerCase().includes(q));
     }
     return list;
-  }, [search, category]);
+  }, [search, category, products]);
 
   const visible = filtered.slice(0, visibleCount);
   const hasMore = visibleCount < filtered.length;
+
+  if (loading) {
+    return (
+      <Layout>
+        <section className="container mx-auto px-4 mt-8 text-center py-20">
+          <p className="text-lg text-muted-foreground">جاري تحميل المنتجات...</p>
+        </section>
+      </Layout>
+    );
+  }
+
+  if (error) {
+    return (
+      <Layout>
+        <section className="container mx-auto px-4 mt-8 text-center py-20">
+          <p className="text-lg text-destructive">{error}</p>
+          <button 
+            onClick={loadProducts}
+            className="mt-4 px-6 py-2 rounded-full bg-primary text-primary-foreground font-bold"
+          >
+            حاول مرة أخرى
+          </button>
+        </section>
+      </Layout>
+    );
+  }
 
   return (
     <Layout>
@@ -59,7 +107,17 @@ const Products = () => {
         {visible.length > 0 ? (
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
             {visible.map((product, i) => (
-              <ProductCard key={product.id} product={product} index={i} />
+              <ProductCard 
+                key={product._id || product.id} 
+                product={{
+                  id: product._id || product.id,
+                  name: product.name,
+                  price: product.price,
+                  image: product.image,
+                  category: product.category || 'عام'
+                }} 
+                index={i} 
+              />
             ))}
           </div>
         ) : (
