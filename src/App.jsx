@@ -10,15 +10,15 @@ import Contact from './pages/Contact.jsx';
 import Cart from './pages/Cart.jsx';
 import Wishlist from './pages/Wishlist.jsx';
 import NotFound from './pages/NotFound.jsx';
-// import AdminDashboard from './pages/Admin/AdminDashboard.jsx';
-// import AdminLogin from './pages/Admin/AdminLogin.jsx';
+import AdminDashboard from './pages/Admin/AdminDashboard.jsx';
+import AdminLogin from './pages/Admin/AdminLogin.jsx';
 
 const queryClient = new QueryClient();
 
 const App = () => {
-  // const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(
-  //   localStorage.getItem('adminToken') === 'authenticated'
-  // );
+  const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(
+    localStorage.getItem('adminToken') === 'authenticated'
+  );
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -34,14 +34,14 @@ const App = () => {
               <Route path="/wishlist" element={<Wishlist />} />
               
               {/* Admin Routes */}
-              {/* <Route 
+              <Route 
                 path="/admin" 
                 element={<AdminLogin onLogin={() => setIsAdminLoggedIn(true)} />} 
               />
               <Route 
                 path="/admin-dashboard" 
                 element={isAdminLoggedIn ? <AdminDashboard /> : <Navigate to="/admin" />} 
-              /> */}
+              />
               
               {/* 404 */}
               <Route path="*" element={<NotFound />} />
