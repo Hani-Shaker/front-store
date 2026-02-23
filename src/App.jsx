@@ -10,8 +10,8 @@ import Contact from './pages/Contact.jsx';
 import Cart from './pages/Cart.jsx';
 import Wishlist from './pages/Wishlist.jsx';
 import NotFound from './pages/NotFound.jsx';
-import AdminDashboard from './pages/Admin/AdminDashboard';
-import AdminLogin from './pages/Admin/AdminLogin';
+import AdminDashboard from './pages/Admin/AdminDashboard.jsx';
+import AdminLogin from './pages/Admin/AdminLogin.jsx';
 
 const queryClient = new QueryClient();
 
