@@ -1,5 +1,17 @@
 // src/services/productService.js
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+
+// تحديد الـ API URL تلقائياً
+const getApiUrl = () => {
+  // إذا كنت في التطوير (localhost)
+  if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+    return 'http://localhost:5000';
+  }
+  
+  // إذا كنت في الإنتاج (Vercel)
+  return 'https://back-store-two.vercel.app';
+};
+
+const API_URL = getApiUrl();
 
 export const productService = {
   // جلب جميع المنتجات
