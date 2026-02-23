@@ -34,16 +34,9 @@ const App = () => {
               <Route path="/wishlist" element={<Wishlist />} />
               
               {/* Admin Routes */}
-              <Route 
-                path="/admin" 
-                element={<AdminLogin onLogin={() => setIsAdminLoggedIn(true)} />} 
-              />
-              <Route 
-                path="/admin-dashboard" 
-                element={isAdminLoggedIn ? <AdminDashboard /> : <Navigate to="/admin" />} 
-              />
+              <Route path="/admin" element={<AdminLogin onLogin={() => setIsAdminLoggedIn(true)} />} />
+              <Route path="/admin-dashboard" element={isAdminLoggedIn ? <AdminDashboard /> : <Navigate to="/admin" />} />
               
-              {/* 404 */}
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>
