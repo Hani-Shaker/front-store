@@ -8,9 +8,15 @@ const AdminLogin = ({ onLogin }) => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const API_URL = window.location.hostname === 'localhost' 
-    ? 'http://localhost:5000' 
-    : 'https://back-store-two.vercel.app';
+  // تحديد الـ API URL تلقائياً
+  const getApiUrl = () => {
+    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+      return 'http://localhost:5000';
+    }
+    return 'https://back-store-two.vercel.app';
+  };
+
+  const API_URL = getApiUrl();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -21,12 +27,15 @@ const AdminLogin = ({ onLogin }) => {
       const response = await fetch(`${API_URL}/api/admin/verify-password`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ password })
+        body: JSON.stringify({ password }),
+        credentials: 'include'
       });
 
       const data = await response.json();
 
       if (data.authenticated) {
+        // احفظ في localStorage
+        localStorage.setItem('adminToken', 'authenticated');
         onLogin();
         navigate('/admin-dashboard', { replace: true });
       } else {
@@ -34,8 +43,8 @@ const AdminLogin = ({ onLogin }) => {
         setPassword('');
       }
     } catch (err) {
-      console.error('Verification error:', err);
-      setError('فشل التحقق من كلمة السر');
+      console.error('Login error:', err);
+      setError('فشل الاتصال بالسيرفر. تأكد من أن الباك اند يعمل.');
     } finally {
       setLoading(false);
     }
@@ -62,6 +71,7 @@ const AdminLogin = ({ onLogin }) => {
               placeholder="أدخل كلمة السر"
               autoFocus
               disabled={loading}
+              required
             />
           </div>
 

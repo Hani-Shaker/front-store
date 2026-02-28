@@ -1,17 +1,17 @@
-// src/pages/Index.jsx
 import { useEffect, useState } from 'react';
 import Layout from '../components/layout/Layout.jsx';
 import HeroSlider from '../components/HeroSlider.jsx';
 import ProductCard from '../components/ProductCard.jsx';
 import SectionTitle from '../components/SectionTitle.jsx';
-import { getProducts, getDiscountedProducts } from '../data/products.js';
+import { getProducts } from '../data/products.js';
 import { ArrowLeft } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const Index = () => {
   const [products, setProducts] = useState([]);
-  const [discountedProducts, setDiscountedProducts] = useState([]);
+  const [featuredProducts, setFeaturedProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     loadProducts();
@@ -24,9 +24,11 @@ const Index = () => {
       setProducts(allProducts);
       
       // استخدم أول 6 منتجات للـ featured section
-      setDiscountedProducts(allProducts.slice(0, 6));
-    } catch (error) {
-      console.error('Error:', error);
+      setFeaturedProducts(allProducts.slice(0, 6));
+      setError(null);
+    } catch (err) {
+      console.error('Error loading products:', err);
+      setError('فشل تحميل المنتجات');
     } finally {
       setLoading(false);
     }
@@ -34,18 +36,35 @@ const Index = () => {
 
   return (
     <Layout>
-      {/* Pass products to HeroSlider */}
-      <HeroSlider products={products.length > 0 ? products : []} />
+      {/* Hero Slider - مع المنتجات */}
+      {products.length > 0 && <HeroSlider products={products} />}
 
+      {/* المنتجات المميزة */}
       <section className="container mx-auto px-4 mt-16">
         <SectionTitle subtitle="اختر من أفضل المنتجات">⭐ المنتجات المميزة</SectionTitle>
 
-        {loading ? (
-          <p className="text-center py-20 text-muted-foreground">جاري التحميل...</p>
-        ) : discountedProducts.length > 0 ? (
-          <div>
+        {loading && (
+          <div className="text-center py-20">
+            <p className="text-lg text-muted-foreground">جاري تحميل المنتجات...</p>
+          </div>
+        )}
+
+        {error && (
+          <div className="text-center py-20">
+            <p className="text-lg text-destructive">{error}</p>
+            <button 
+              onClick={loadProducts}
+              className="mt-4 px-6 py-2 rounded-full bg-primary text-primary-foreground font-bold"
+            >
+              حاول مرة أخرى
+            </button>
+          </div>
+        )}
+
+        {!loading && !error && featuredProducts.length > 0 && (
+          <>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-              {discountedProducts.map((product, i) => (
+              {featuredProducts.map((product, i) => (
                 <ProductCard 
                   key={product._id || product.id} 
                   product={{
@@ -55,25 +74,36 @@ const Index = () => {
                     image: product.image,
                     category: product.category || 'عام',
                     stock: product.stock || 0,
-                    colors: ['#000'], // لون افتراضي
-                    originalPrice: null,
-                    badge: null
+                    colors: Array.isArray(product.colors) && product.colors.length > 0 
+                      ? product.colors 
+                      : ['#000000'],
+                    originalPrice: product.originalPrice || null,
+                    badge: product.badge || null
                   }} 
                   index={i} 
                 />
               ))}
             </div>
+
             <div className="text-center mt-10">
-              <Link to="/products" className="inline-flex items-center gap-2 px-8 py-3 rounded-full bg-primary text-primary-foreground font-bold text-sm hover:opacity-90 transition-opacity">
+              <Link 
+                to="/products" 
+                className="inline-flex items-center gap-2 px-8 py-3 rounded-full bg-primary text-primary-foreground font-bold text-sm hover:opacity-90 transition-opacity"
+              >
                 عرض جميع المنتجات
                 <ArrowLeft className="w-4 h-4" />
               </Link>
             </div>
-          </div>
-        ) : (
+          </>
+        )}
+
+        {!loading && !error && featuredProducts.length === 0 && (
           <div className="text-center py-20 text-muted-foreground">
-            <p>لا توجد منتجات حالياً</p>
-            <Link to="/products" className="inline-block mt-4 px-6 py-2 rounded-full bg-primary text-primary-foreground">
+            <p className="text-lg mb-4">لا توجد منتجات حالياً</p>
+            <Link 
+              to="/products" 
+              className="inline-block px-6 py-2 rounded-full bg-primary text-primary-foreground font-bold"
+            >
               تصفح المنتجات
             </Link>
           </div>
