@@ -1,4 +1,3 @@
-// src/pages/Admin/AdminLogin.jsx
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './Admin-Login.css';
@@ -9,23 +8,37 @@ const AdminLogin = ({ onLogin }) => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const ADMIN_PASSWORD = '123456'; // غيّر هذا لـ strong password
+  const API_URL = window.location.hostname === 'localhost' 
+    ? 'http://localhost:5000' 
+    : 'https://back-store-two.vercel.app';
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setError('');
     setLoading(true);
 
-    setTimeout(() => {
-      if (password === ADMIN_PASSWORD) {
-        localStorage.setItem('adminToken', 'authenticated');
+    try {
+      const response = await fetch(`${API_URL}/api/admin/verify-password`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password })
+      });
+
+      const data = await response.json();
+
+      if (data.authenticated) {
         onLogin();
-        navigate('/admin-dashboard');
+        navigate('/admin-dashboard', { replace: true });
       } else {
-        setError('كلمة السر خاطئة!');
+        setError(data.message || 'كلمة السر خاطئة!');
         setPassword('');
       }
+    } catch (err) {
+      console.error('Verification error:', err);
+      setError('فشل التحقق من كلمة السر');
+    } finally {
       setLoading(false);
-    }, 500);
+    }
   };
 
   return (
@@ -60,6 +73,8 @@ const AdminLogin = ({ onLogin }) => {
             {loading ? '⏳ جاري...' : '🔓 دخول'}
           </button>
         </form>
+
+        <p className="hint">🔒 كلمة السر محفوظة في الباك اند</p>
       </div>
     </div>
   );
