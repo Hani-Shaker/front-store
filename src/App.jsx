@@ -11,7 +11,7 @@ import Cart from './pages/Cart.jsx';
 import Wishlist from './pages/Wishlist.jsx';
 import NotFound from './pages/NotFound.jsx';
 import AdminDashboard from './pages/admin/AdminDashboard.jsx';
-import AdminLogin from './pages/admin/AdminLogin.jsx';
+import AdminLogin from './pages/admin/Admin-Login.jsx';
 
 const queryClient = new QueryClient();
 

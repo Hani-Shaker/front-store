@@ -5,6 +5,81 @@ import { productService } from '../../services/productService';
 import './AdminDashboard.css';
 import { LogOut } from 'lucide-react';
 
+
+// أضف هذه الدوال في AdminDashboard.jsx
+
+// دالة تغيير اللون مع التحقق
+const handleColorChange = (index, value) => {
+  const newColors = [...formData.colors];
+  
+  // السماح بـ hex colors فقط
+  if (/^#[0-9A-F]{6}$/i.test(value) || value === '') {
+    newColors[index] = value.toUpperCase();
+    setFormData(prev => ({
+      ...prev,
+      colors: newColors
+    }));
+  }
+};
+
+// دالة إضافة لون جديد
+const addColor = () => {
+  if (formData.colors.length < 10) {
+    setFormData(prev => ({
+      ...prev,
+      colors: [...prev.colors, '#000000']
+    }));
+  } else {
+    setError('لا يمكن إضافة أكثر من 10 ألوان');
+  }
+};
+
+// دالة حذف لون
+const removeColor = (index) => {
+  if (formData.colors.length > 1) {
+    setFormData(prev => ({
+      ...prev,
+      colors: prev.colors.filter((_, i) => i !== index)
+    }));
+  } else {
+    setError('يجب أن يكون هناك لون واحد على الأقل');
+  }
+};
+
+// دالة تحديث formData عند البداية
+const resetForm = () => {
+  setFormData({
+    name: '',
+    description: '',
+    price: '',
+    image: '',
+    category: 'إلكترونيات',
+    stock: '',
+    colors: ['#000000', '#FFFFFF'] // لونين افتراضيين
+  });
+  setEditingId(null);
+  setShowForm(false);
+};
+
+// عند البدء بـ edit
+const handleStartEdit = (product) => {
+  setFormData({
+    name: product.name,
+    description: product.description || '',
+    price: product.price,
+    image: product.image || '',
+    category: product.category || 'إلكترونيات',
+    stock: product.stock || '',
+    colors: product.colors && product.colors.length > 0 
+      ? product.colors 
+      : ['#000000', '#FFFFFF']
+  });
+  setEditingId(product._id);
+  setShowForm(true);
+  window.scrollTo(0, 0);
+};
+
+
 const CATEGORIES = ['إلكترونيات', 'ملابس', 'إكسسوارات', 'أثاث', 'أخرى'];
 const DEFAULT_COLORS = ['#000000', '#FFFFFF', '#FF0000', '#00FF00', '#0000FF', '#FFFF00'];
 
@@ -294,44 +369,91 @@ const AdminDashboard = () => {
   />
 </div>
 
-            <div className="colors-section">
-              <label>ألوان المنتج</label>
-              <div className="colors-list">
-                {formData.colors.map((color, index) => (
-                  <div key={index} className="color-input-group">
-                    <input
-                      type="color"
-                      value={color}
-                      onChange={(e) => handleColorChange(index, e.target.value)}
-                      className="color-picker"
-                    />
-                    <input
-                      type="text"
-                      value={color}
-                      onChange={(e) => handleColorChange(index, e.target.value)}
-                      placeholder="#000000"
-                      className="color-text"
-                    />
-                    {formData.colors.length > 1 && (
-                      <button
-                        type="button"
-                        onClick={() => removeColor(index)}
-                        className="btn-remove-color"
-                      >
-                        ✕
-                      </button>
-                    )}
-                  </div>
-                ))}
-              </div>
-              <button
-                type="button"
-                onClick={addColor}
-                className="btn-add-color"
-              >
-                + إضافة لون
-              </button>
-            </div>
+<div className="colors-section">
+  <label>ألوان المنتج المتاحة</label>
+  <div className="colors-list">
+    {formData.colors && formData.colors.length > 0 ? (
+      formData.colors.map((color, index) => (
+        <div key={index} className="color-input-group">
+          <div className="color-picker-wrapper">
+            <input
+              type="color"
+              value={color && color.length > 0 ? color : '#000000'}
+              onChange={(e) => handleColorChange(index, e.target.value)}
+              className="color-picker"
+              title="اختر لون"
+            />
+            <span 
+              className="color-preview" 
+              style={{ backgroundColor: color || '#000000' }}
+              title={color}
+            />
+          </div>
+
+          <div className="color-input-wrapper">
+            <input
+              type="text"
+              value={color || '#000000'}
+              onChange={(e) => {
+                const val = e.target.value;
+                // التحقق من صيغة Hex
+                if (/^#[0-9A-F]{6}$/i.test(val) || val === '') {
+                  handleColorChange(index, val);
+                }
+              }}
+              placeholder="#000000"
+              className="color-text"
+              maxLength="7"
+              title="أدخل Hex color (مثال: #FF5733)"
+            />
+          </div>
+
+          {formData.colors.length > 1 && (
+            <button
+              type="button"
+              onClick={() => removeColor(index)}
+              className="btn-remove-color"
+              title="حذف هذا اللون"
+            >
+              ✕
+            </button>
+          )}
+        </div>
+      ))
+    ) : (
+      <div className="no-colors">
+        <p>لم تضف ألواناً بعد. اضغط "إضافة لون" لإضافة لون.</p>
+      </div>
+    )}
+  </div>
+
+  <button
+    type="button"
+    onClick={addColor}
+    className="btn-add-color"
+    disabled={formData.colors && formData.colors.length >= 10}
+  >
+    + إضافة لون (الحد الأقصى 10)
+  </button>
+
+  {/* عرض الألوان المختارة */}
+  {formData.colors && formData.colors.length > 0 && (
+    <div className="selected-colors-preview">
+      <p>الألوان المختارة:</p>
+      <div className="colors-grid">
+        {formData.colors.map((color, index) => (
+          <div key={index} className="color-chip">
+            <span 
+              className="color-swatch" 
+              style={{ backgroundColor: color || '#000000' }}
+            />
+            <span className="color-code">{color}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  )}
+</div>
 
             <button type="submit" className="btn-success">
               {editingId ? '💾 حفظ' : '➕ إضافة'}

@@ -1,7 +1,7 @@
 // src/pages/Admin/AdminLogin.jsx
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import './AdminLogin.css';
+import './Admin-Login.css';
 
 const AdminLogin = ({ onLogin }) => {
   const [password, setPassword] = useState('');
