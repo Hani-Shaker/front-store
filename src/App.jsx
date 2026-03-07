@@ -10,7 +10,7 @@ import Contact from './pages/Contact.jsx';
 import Cart from './pages/Cart.jsx';
 import Wishlist from './pages/Wishlist.jsx';
 import NotFound from './pages/NotFound.jsx';
-import AdminPanel from './pages/admin/AdminPanel.jsx';
+import AdminPanel from './pages/AdminPanel.jsx';
 
 
 const queryClient = new QueryClient();
