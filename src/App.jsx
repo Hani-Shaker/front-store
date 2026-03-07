@@ -10,8 +10,8 @@ import Contact from './pages/Contact.jsx';
 import Cart from './pages/Cart.jsx';
 import Wishlist from './pages/Wishlist.jsx';
 import NotFound from './pages/NotFound.jsx';
-import AdminDashboard from './pages/admin/AdminDashboard.jsx';
-import AdminLogin from './pages/admin/Admin-Login.jsx';
+import AdminPanel from './pages/Admin/AdminPanel.jsx';
+
 
 const queryClient = new QueryClient();
 
@@ -51,14 +51,7 @@ const App = () => {
               <Route path="/wishlist" element={<Wishlist />} />
               
               {/* ✅ Admin Routes */}
-              <Route 
-                path="/admin" 
-                element={isAdminLoggedIn ? <Navigate to="/admin-dashboard" replace /> : <AdminLogin onLogin={handleAdminLogin} />} 
-              />
-              <Route 
-                path="/admin-dashboard" 
-                element={isAdminLoggedIn ? <AdminDashboard onLogout={handleAdminLogout} /> : <Navigate to="/admin" replace />} 
-              />
+              <Route path="/admin" element={<AdminPanel />} />
               
               <Route path="*" element={<NotFound />} />
             </Routes>
