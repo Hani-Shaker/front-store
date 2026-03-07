@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Toaster } from 'sonner';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
@@ -16,9 +16,26 @@ import AdminLogin from './pages/admin/Admin-Login.jsx';
 const queryClient = new QueryClient();
 
 const App = () => {
-  const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(
-    localStorage.getItem('adminToken') === 'authenticated'
-  );
+  // ✅ اقرأ من localStorage بشكل آمن
+  const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(() => {
+    try {
+      return localStorage.getItem('adminToken') === 'authenticated';
+    } catch {
+      return false;
+    }
+  });
+
+  // ✅ عند تسجيل الدخول
+  const handleAdminLogin = () => {
+    localStorage.setItem('adminToken', 'authenticated');
+    setIsAdminLoggedIn(true);
+  };
+
+  // ✅ عند تسجيل الخروج
+  const handleAdminLogout = () => {
+    localStorage.removeItem('adminToken');
+    setIsAdminLoggedIn(false);
+  };
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -33,9 +50,15 @@ const App = () => {
               <Route path="/cart" element={<Cart />} />
               <Route path="/wishlist" element={<Wishlist />} />
               
-              {/* Admin Routes */}
-              <Route path="/admin" element={<AdminLogin onLogin={() => setIsAdminLoggedIn(true)} />} />
-              <Route path="/admin-dashboard" element={isAdminLoggedIn ? <AdminDashboard /> : <Navigate to="/admin" />} />
+              {/* ✅ Admin Routes */}
+              <Route 
+                path="/admin" 
+                element={isAdminLoggedIn ? <Navigate to="/admin-dashboard" replace /> : <AdminLogin onLogin={handleAdminLogin} />} 
+              />
+              <Route 
+                path="/admin-dashboard" 
+                element={isAdminLoggedIn ? <AdminDashboard onLogout={handleAdminLogout} /> : <Navigate to="/admin" replace />} 
+              />
               
               <Route path="*" element={<NotFound />} />
             </Routes>
