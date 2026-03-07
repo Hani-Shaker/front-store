@@ -16,27 +16,6 @@ import AdminPanel from './pages/AdminPanel/AdminPanel.jsx';
 const queryClient = new QueryClient();
 
 const App = () => {
-  // ✅ اقرأ من localStorage بشكل آمن
-  const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(() => {
-    try {
-      return localStorage.getItem('adminToken') === 'authenticated';
-    } catch {
-      return false;
-    }
-  });
-
-  // ✅ عند تسجيل الدخول
-  const handleAdminLogin = () => {
-    localStorage.setItem('adminToken', 'authenticated');
-    setIsAdminLoggedIn(true);
-  };
-
-  // ✅ عند تسجيل الخروج
-  const handleAdminLogout = () => {
-    localStorage.removeItem('adminToken');
-    setIsAdminLoggedIn(false);
-  };
-
   return (
     <QueryClientProvider client={queryClient}>
       <CartProvider>
