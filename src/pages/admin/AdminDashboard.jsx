@@ -81,7 +81,7 @@ const handleStartEdit = (product) => {
 
 
 const CATEGORIES = ['إلكترونيات', 'ملابس', 'إكسسوارات', 'أثاث', 'أخرى'];
-const DEFAULT_COLORS = ['#000000', '#FFFFFF', '#FF0000', '#00FF00', '#0000FF', '#FFFF00'];
+// const DEFAULT_COLORS = ['#000000', '#FFFFFF', '#FF0000', '#00FF00', '#0000FF', '#FFFF00'];
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
@@ -242,7 +242,35 @@ const AdminDashboard = () => {
     localStorage.removeItem('adminToken');
     navigate('/admin');
   };
+    async function uploadImage(file, setFormData, formData, setSuccess, setError) {
+      if (!file) return;
 
+      const dataForm = new FormData();
+      dataForm.append("file", file);
+      dataForm.append("upload_preset", "lolo-store");
+
+      try {
+        const res = await fetch(
+          `https://api.cloudinary.com/v1_1/doh4cvygr/image/upload`,
+          {
+            method: "POST",
+            body: dataForm
+          }
+        );
+
+        const data = await res.json();
+
+        setFormData({
+          ...formData,
+          image: data.secure_url
+        });
+
+        setSuccess("تم رفع الصورة ✅");
+      } catch (error) {
+        console.error(error);
+        setError("فشل رفع الصورة");
+      }
+    }
   return (
     <div className="admin-container">
       <div className="admin-header">
@@ -335,38 +363,35 @@ const AdminDashboard = () => {
 
 <div className="form-group">
   <label>الصورة</label>
-  <input
-    type="file"
-    accept="image/*"
-    onChange={async (e) => {
-      const file = e.target.files[0];
-      if (!file) return;
+  
+  <div style={{ display: 'flex', gap: '10px' }}>
+    <input 
+      type="file" 
+      id="imageUpload"
+      accept="image/*"
+    />
+    
+    <button
+      type="button"
+      onClick={() => {
+        const file = document.getElementById("imageUpload").files[0];
+        uploadImage(file, setFormData, formData, setSuccess, setError);
+      }}
+      className="btn-secondary"
+    >
+      📤 رفع الصورة
+    </button>
+  </div>
 
-      const formData = new FormData();
-      formData.append('image', file);
-
-      try {
-        const response = await fetch(
-          `${import.meta.env.VITE_API_URL}/api/upload-drive`,
-          {
-            method: 'POST',
-            body: formData
-          }
-        );
-        const data = await response.json();
-        
-        if (data.url) {
-          setFormData(prev => ({ ...prev, image: data.url }));
-          setSuccess('تم رفع الصورة على Google Drive ✅');
-        } else {
-          setError('خطأ في رفع الصورة');
-        }
-      } catch (error) {
-        console.error('Upload error:', error);
-        setError('فشل رفع الصورة');
-      }
-    }}
-  />
+  {formData.image && (
+    <div style={{ marginTop: '15px' }}>
+      <img 
+        src={formData.image} 
+        alt="preview" 
+        style={{ maxWidth: '200px', borderRadius: '8px' }}
+      />
+    </div>
+  )}
 </div>
 
 <div className="colors-section">
