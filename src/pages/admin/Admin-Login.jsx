@@ -8,7 +8,7 @@ const AdminLogin = ({ onLogin }) => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  // تحديد الـ API URL تلقائياً
+  // ✅ تحديد الـ API URL تلقائياً
   const getApiUrl = () => {
     if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
       return 'http://localhost:5000';
@@ -23,17 +23,24 @@ const AdminLogin = ({ onLogin }) => {
     setError('');
     setLoading(true);
 
+    // ✅ Timeout logic
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 10000); // 10 ثواني
+
     try {
       const response = await fetch(`${API_URL}/api/admin/verify-password`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ password }),
+        signal: controller.signal
       });
+
+      clearTimeout(timeout);
 
       const data = await response.json();
 
       if (data.authenticated) {
-        // احفظ في localStorage
+        // ✅ احفظ في localStorage
         localStorage.setItem('adminToken', 'authenticated');
         onLogin();
         navigate('/admin-dashboard', { replace: true });
@@ -42,8 +49,15 @@ const AdminLogin = ({ onLogin }) => {
         setPassword('');
       }
     } catch (err) {
-      console.error('Login error:', err);
-      setError('فشل الاتصال بالسيرفر. تأكد من أن الباك اند يعمل.');
+      clearTimeout(timeout);
+      
+      if (err.name === 'AbortError') {
+        setError('انتهت مهلة الانتظار - تأكد من الاتصال');
+      } else {
+        console.error('Login error:', err);
+        setError('فشل الاتصال بالسيرفر. تأكد من أن الباك اند يعمل.');
+      }
+      setPassword('');
     } finally {
       setLoading(false);
     }
