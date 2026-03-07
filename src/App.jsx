@@ -10,7 +10,7 @@ import Contact from './pages/Contact.jsx';
 import Cart from './pages/Cart.jsx';
 import Wishlist from './pages/Wishlist.jsx';
 import NotFound from './pages/NotFound.jsx';
-import AdminPanel from './pages/AdminPanel.jsx';
+import AdminPanel from './pages/AdminPanel/AdminPanel.jsx';
 
 
 const queryClient = new QueryClient();
@@ -49,8 +49,6 @@ const App = () => {
               <Route path="/contact" element={<Contact />} />
               <Route path="/cart" element={<Cart />} />
               <Route path="/wishlist" element={<Wishlist />} />
-              
-              {/* ✅ Admin Routes */}
               <Route path="/admin" element={<AdminPanel />} />
               
               <Route path="*" element={<NotFound />} />
