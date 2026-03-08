@@ -198,7 +198,7 @@ function AdminPanel() {
     try {
       const dataForm = new FormData();
       dataForm.append("file", file);
-      dataForm.append("upload_preset", import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET || "unsigned_upload");
+      dataForm.append("upload_preset", import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET || "lolo-store");
 
       const res = await fetch(
         `https://api.cloudinary.com/v1_1/${import.meta.env.VITE_CLOUDINARY_CLOUD_NAME}/image/upload`,

@@ -1,4 +1,3 @@
-import { useState, useEffect } from 'react';
 import { Toaster } from 'sonner';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
@@ -28,7 +27,7 @@ const App = () => {
               <Route path="/contact" element={<Contact />} />
               <Route path="/cart" element={<Cart />} />
               <Route path="/wishlist" element={<Wishlist />} />
-              <Route path="/test" element={<AdminPanel />} />
+              <Route path="/admin" element={<AdminPanel />} />
               
               <Route path="*" element={<NotFound />} />
             </Routes>

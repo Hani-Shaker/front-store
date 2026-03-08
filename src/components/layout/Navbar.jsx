@@ -9,6 +9,7 @@ const navLinks = [
   { to: '/', label: 'الرئيسية' },
   { to: '/products', label: 'المنتجات' },
   { to: '/contact', label: 'اتصل بنا' },
+  { to: '/admin', label: 'الادمن' },
 ];
 
 const Navbar = () => {
