@@ -201,7 +201,7 @@ function AdminPanel() {
       dataForm.append("upload_preset", import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET || "lolo-store");
 
       const res = await fetch(
-        `https://api.cloudinary.com/v1_1/${import.meta.env.VITE_CLOUDINARY_CLOUD_NAME}/image/upload`,
+        `https://api.cloudinary.com/v1_1/doh4cvygr/image/upload`,
         {
           method: "POST",
           body: dataForm
@@ -574,7 +574,7 @@ function AdminPanel() {
                         'بدون صورة'
                       )}
                     </td>
-                    <td>
+                    <td className="actions-btns-group">
                       <button className="btn-edit" onClick={() => handleStartEdit(product)}>✏️</button>
                       <button className="btn-delete" onClick={() => handleDeleteProduct(product._id)}>🗑️</button>
                     </td>

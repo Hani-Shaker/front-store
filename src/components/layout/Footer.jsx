@@ -10,7 +10,7 @@ const Footer = () => (
             <div className="w-8 h-8 rounded-lg bg-gradient-gold flex items-center justify-center">
               <Sparkles className="w-4 h-4 text-accent-foreground" />
             </div>
-            <span className="text-lg font-bold">أناقة ستور</span>
+            <span className="text-lg font-bold">Lola Store</span>
           </div>
           <p className="text-sm opacity-70 leading-relaxed">
             متجرك المفضل للأزياء والاكسسوارات بأفضل الأسعار وأحدث الصيحات.
@@ -31,19 +31,19 @@ const Footer = () => (
           <h4 className="font-bold text-sm mb-4 text-gradient-gold inline-block">تواصل معنا</h4>
           <div className="flex flex-col gap-3">
             <div className="flex items-center gap-2 text-sm opacity-70">
-              <Phone className="w-4 h-4" /><span>+20 123 456 7890</span>
+              <Phone className="w-4 h-4" /><span>01091804834</span>
             </div>
             <div className="flex items-center gap-2 text-sm opacity-70">
-              <Mail className="w-4 h-4" /><span>info@anaqastore.com</span>
+              <Mail className="w-4 h-4" /><span>lolostore112@gmail.com</span>
             </div>
             <div className="flex items-center gap-2 text-sm opacity-70">
-              <MapPin className="w-4 h-4" /><span>القاهرة، مصر</span>
+              <MapPin className="w-4 h-4" /><span>مصر - الفيوم</span>
             </div>
           </div>
         </div>
       </div>
       <div className="border-t border-background/10 mt-10 pt-6 text-center">
-        <p className="text-xs opacity-50">© {new Date().getFullYear()} أناقة ستور. جميع الحقوق محفوظة.</p>
+        <p className="text-xs opacity-50">© {new Date().getFullYear()} Lola Store. جميع الحقوق محفوظة.</p>
       </div>
     </div>
   </footer>

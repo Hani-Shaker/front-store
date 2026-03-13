@@ -1,7 +1,3 @@
-/* ============================================
-   ADMIN PANEL - COMBINED STYLES
-   ============================================ */
-
 /* ✅ Loading State */
 .admin-loading {
   display: flex;
@@ -258,7 +254,11 @@
   opacity: 0.6;
   cursor: not-allowed;
 }
-
+.actions-btns-group{
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
 .btn-edit {
   padding: 6px 10px;
   background: #2196f3;
