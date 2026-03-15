@@ -31,7 +31,7 @@ const Footer = () => (
           <h4 className="font-bold text-sm mb-4 text-gradient-gold inline-block">تواصل معنا</h4>
           <div className="flex flex-col gap-3">
             <div className="flex items-center gap-2 text-sm opacity-70">
-              <Phone className="w-4 h-4" /><span>01091804834</span>
+              <Phone className="w-4 h-4" /><span>01026385348</span>
             </div>
             <div className="flex items-center gap-2 text-sm opacity-70">
               <Mail className="w-4 h-4" /><span>lolostore112@gmail.com</span>

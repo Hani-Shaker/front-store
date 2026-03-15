@@ -61,7 +61,7 @@ const Contact = () => {
             </p>
             <div className="flex flex-col gap-4 mt-2">
               {[
-                { Icon: Phone, label: 'الهاتف', value: '01091804834' },
+                { Icon: Phone, label: 'الهاتف', value: '01026385348' },
                 { Icon: Mail, label: 'البريد الإلكتروني', value: 'lolostore112@gmail.com' },
                 { Icon: MapPin, label: 'العنوان', value: 'مصر - الفيوم' },
               ].map(({ Icon, label, value }) => (

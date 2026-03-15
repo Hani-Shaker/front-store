@@ -348,7 +348,6 @@ function AdminPanel() {
             </button>
           </form>
 
-          <p className="hint">🔒 كلمة السر محفوظة في الباك اند</p>
         </div>
       </div>
     );
