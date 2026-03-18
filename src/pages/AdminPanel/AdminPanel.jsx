@@ -477,47 +477,120 @@ function AdminPanel() {
               )}
             </div>
 
-            {/* ✅ الألوان */}
-            <div className="colors-section">
-              <label>ألوان المنتج</label>
-              <div className="colors-list">
-                {formData.colors.map((color, index) => (
-                  <div key={index} className="color-input-group">
-                    <input
-                      type="color"
-                      value={color}
-                      onChange={(e) => handleColorChange(index, e.target.value)}
-                      className="color-picker"
-                    />
-                    <input
-                      type="text"
-                      value={color}
-                      onChange={(e) => handleColorChange(index, e.target.value)}
-                      placeholder="#000000"
-                      className="color-text"
-                      maxLength="7"
-                    />
-                    {formData.colors.length > 1 && (
-                      <button
-                        type="button"
-                        onClick={() => removeColor(index)}
-                        className="btn-remove-color"
-                      >
-                        ✕
-                      </button>
-                    )}
-                  </div>
-                ))}
-              </div>
-              <button
-                type="button"
-                onClick={addColor}
-                className="btn-add-color"
-                disabled={formData.colors.length >= 10}
-              >
-                + إضافة لون
-              </button>
-            </div>
+{/* ✅ الألوان - محسّنة */}
+<div className="colors-section">
+  <div style={{ marginBottom: '15px' }}>
+    <label style={{
+      display: 'block',
+      marginBottom: '10px',
+      fontWeight: 600,
+      color: '#333'
+    }}>
+      🎨 ألوان المنتج
+    </label>
+    <p style={{ fontSize: '12px', color: '#666', margin: '0 0 10px 0' }}>
+      أضف لونًا واحدًا على الأقل
+    </p>
+  </div>
+
+  {/* ✅ عرض الألوان الحالية */}
+  <div style={{
+    display: 'grid',
+    gridTemplateColumns: 'repeat(auto-fill, minmax(80px, 1fr))',
+    gap: '10px',
+    marginBottom: '15px'
+  }}>
+    {formData.colors.map((color, index) => (
+      <div
+        key={index}
+        style={{
+          position: 'relative',
+          borderRadius: '8px',
+          overflow: 'hidden',
+          boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+        }}
+      >
+        {/* ✅ الـ Color Input */}
+        <input
+          type="color"
+          value={color}
+          onChange={(e) => handleColorChange(index, e.target.value)}
+          style={{
+            width: '100%',
+            height: '60px',
+            border: 'none',
+            cursor: 'pointer',
+            padding: '0'
+          }}
+          title={color}
+        />
+
+        {/* ✅ زر الحذف - يظهر عند التمرير */}
+        {formData.colors.length > 1 && (
+          <button
+            type="button"
+            onClick={() => removeColor(index)}
+            style={{
+              position: 'absolute',
+              top: '0',
+              right: '0',
+              background: 'rgba(0,0,0,0.7)',
+              color: 'white',
+              border: 'none',
+              borderRadius: '0 8px 0 0',
+              width: '24px',
+              height: '24px',
+              cursor: 'pointer',
+              fontSize: '12px',
+              fontWeight: 'bold'
+            }}
+            title="حذف اللون"
+          >
+            ✕
+          </button>
+        )}
+
+        {/* ✅ كود اللون تحت الـ color picker */}
+        <div style={{
+          padding: '6px',
+          background: '#f5f5f5',
+          fontSize: '11px',
+          fontFamily: 'monospace',
+          textAlign: 'center',
+          color: '#333'
+        }}>
+          {color}
+        </div>
+      </div>
+    ))}
+  </div>
+
+  {/* ✅ زر إضافة لون */}
+  <button
+    type="button"
+    onClick={addColor}
+    disabled={formData.colors.length >= 10}
+    style={{
+      width: '100%',
+      padding: '10px',
+      background: formData.colors.length >= 10 ? '#ccc' : '#4caf50',
+      color: 'white',
+      border: 'none',
+      borderRadius: '8px',
+      cursor: formData.colors.length >= 10 ? 'not-allowed' : 'pointer',
+      fontWeight: 600,
+      transition: 'background 0.3s'
+    }}
+    onMouseEnter={(e) => {
+      if (formData.colors.length < 10) e.target.style.background = '#45a049';
+    }}
+    onMouseLeave={(e) => {
+      if (formData.colors.length < 10) e.target.style.background = '#4caf50';
+    }}
+  >
+    + إضافة لون {formData.colors.length}/10
+  </button>
+</div>
 
             <button type="submit" className="btn-success" disabled={loading}>
               {loading ? '⏳ جاري...' : (editingId ? '💾 حفظ' : '➕ إضافة')}
