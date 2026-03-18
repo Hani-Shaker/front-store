@@ -6,7 +6,7 @@ import { Trash2, Plus, Minus, Send, ShoppingCart } from 'lucide-react';
 import { toast } from 'sonner';
 import { Link } from 'react-router-dom';
 
-const DELIVERY_FEE = 50;
+const DELIVERY_FEE = 30;
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
 const Cart = () => {

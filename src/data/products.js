@@ -49,4 +49,4 @@ export const heroSlides = [
   }
 ];
 
-export const categories = ['الكل', 'إلكترونيات', 'ملابس', 'إكسسوارات', 'أثاث'];
+export const categories = ['الكل', 'إلكترونيات', 'ملابس', 'إكسسوارات', 'ميكب' , "ادوات منزلية" , "أخرى"];

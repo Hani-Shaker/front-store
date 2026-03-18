@@ -440,7 +440,8 @@ function AdminPanel() {
                   <option value="إلكترونيات">إلكترونيات</option>
                   <option value="ملابس">ملابس</option>
                   <option value="إكسسوارات">إكسسوارات</option>
-                  <option value="أثاث">أثاث</option>
+                  <option value="ميكب">ميكب</option>
+                  <option value="ادوات منزلية">ادوات منزلية</option>
                   <option value="أخرى">أخرى</option>
                 </select>
               </div>
