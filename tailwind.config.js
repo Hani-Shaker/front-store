@@ -32,6 +32,10 @@ export default {
           DEFAULT: 'hsl(var(--accent))',
           foreground: 'hsl(var(--accent-foreground))',
         },
+        gold: 'hsl(var(--gold))',
+        'badge-new': 'hsl(var(--badge-new))',
+        'badge-bestseller': 'hsl(var(--badge-bestseller))',
+        'badge-sale': 'hsl(var(--badge-sale))',
         card: {
           DEFAULT: 'hsl(var(--card))',
           foreground: 'hsl(var(--card-foreground))',

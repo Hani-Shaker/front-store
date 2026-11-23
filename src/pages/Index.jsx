@@ -1,114 +1,111 @@
-import { useEffect, useState } from 'react';
+import { useMemo } from 'react';
+import { Link } from 'react-router-dom';
+import { ArrowLeft, Truck, ShieldCheck, Headphones, Gift } from 'lucide-react';
 import Layout from '../components/layout/Layout.jsx';
 import HeroSlider from '../components/HeroSlider.jsx';
-import ProductCard from '../components/ProductCard.jsx';
 import SectionTitle from '../components/SectionTitle.jsx';
-import { getProducts } from '../data/products.js';
-import { ArrowLeft } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import ProductGrid from '../components/ProductGrid.jsx';
+import ProductSkeleton from '../components/ProductSkeleton.jsx';
+import ErrorState from '../components/ErrorState.jsx';
+import { useProducts } from '../hooks/useProducts.js';
+import { useSettings } from '../context/SettingsContext.jsx';
+import { CATEGORY_ICONS, formatPrice } from '../lib/constants.js';
+
+const ViewAll = ({ to = '/products' }) => (
+  <Link to={to} className="hidden sm:inline-flex items-center gap-1.5 text-sm font-bold text-primary hover:gap-2.5 transition-all">
+    عرض الكل <ArrowLeft className="w-4 h-4" />
+  </Link>
+);
 
 const Index = () => {
-  const [products, setProducts] = useState([]);
-  const [featuredProducts, setFeaturedProducts] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const { data: products = [], isLoading, isError, refetch } = useProducts();
+  const { deliveryFee, freeShippingThreshold } = useSettings();
 
-  useEffect(() => {
-    loadProducts();
-  }, []);
+  const { hero, newest, onSale, categories } = useMemo(() => {
+    const byDate = [...products].sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+    const counts = {};
+    products.forEach((p) => { counts[p.category] = (counts[p.category] || 0) + 1; });
+    return {
+      hero: byDate.filter((p) => p.image).slice(0, 5),
+      newest: byDate.slice(0, 8),
+      onSale: byDate.filter((p) => p.originalPrice && p.originalPrice > p.price).slice(0, 4),
+      categories: Object.entries(counts).sort((a, b) => b[1] - a[1]),
+    };
+  }, [products]);
 
-  const loadProducts = async () => {
-    setLoading(true);
-    try {
-      const allProducts = await getProducts();
-      setProducts(allProducts);
-      
-      // استخدم أول 6 منتجات للـ featured section
-      setFeaturedProducts(allProducts.slice(0, 6));
-      setError(null);
-    } catch (err) {
-      console.error('Error loading products:', err);
-      setError('فشل تحميل المنتجات');
-    } finally {
-      setLoading(false);
-    }
-  };
+  const features = [
+    { Icon: Truck, title: 'توصيل لكل المحافظات', text: freeShippingThreshold > 0 ? `شحن مجاني فوق ${formatPrice(freeShippingThreshold)}` : `رسوم التوصيل ${formatPrice(deliveryFee)}` },
+    { Icon: ShieldCheck, title: 'الدفع عند الاستلام', text: 'ادفع بعد ما تستلم طلبك' },
+    { Icon: Gift, title: 'منتجات مختارة', text: 'جودة عالية وأسعار مناسبة' },
+    { Icon: Headphones, title: 'دعم سريع', text: 'تواصل معنا واتساب أو تليفون' },
+  ];
 
   return (
     <Layout>
-      {/* Hero Slider - مع المنتجات */}
-      {products.length > 0 && <HeroSlider products={products} />}
+      <div className="container mx-auto px-4 pt-5">
+        <HeroSlider products={hero} />
+      </div>
 
-      {/* المنتجات المميزة */}
-      <section className="container mx-auto px-4 mt-16">
-        <SectionTitle subtitle="اختر من أفضل المنتجات">⭐ المنتجات المميزة</SectionTitle>
-
-        {loading && (
-          <div className="text-center py-20">
-            <p className="text-lg text-muted-foreground">جاري تحميل المنتجات...</p>
-          </div>
-        )}
-
-        {error && (
-          <div className="text-center py-20">
-            <p className="text-lg text-destructive">{error}</p>
-            <button 
-              onClick={loadProducts}
-              className="mt-4 px-6 py-2 rounded-full bg-primary text-primary-foreground font-bold"
-            >
-              حاول مرة أخرى
-            </button>
-          </div>
-        )}
-
-        {!loading && !error && featuredProducts.length > 0 && (
-          <>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-              {featuredProducts.map((product, i) => (
-                <ProductCard 
-                  key={product._id || product.id} 
-                  product={{
-                    id: product._id || product.id,
-                    name: product.name,
-                    price: product.price,
-                    image: product.image,
-                    category: product.category || 'عام',
-                    stock: product.stock || 0,
-                    colors: Array.isArray(product.colors) && product.colors.length > 0 
-                      ? product.colors 
-                      : ['#000000'],
-                    originalPrice: product.originalPrice || null,
-                    badge: product.badge || null
-                  }} 
-                  index={i} 
-                />
-              ))}
+      {/* مميزات */}
+      <section className="container mx-auto px-4 mt-6">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+          {features.map(({ Icon, title, text }) => (
+            <div key={title} className="flex items-center gap-3 bg-card border border-border rounded-2xl p-3.5 shadow-card">
+              <span className="w-10 h-10 shrink-0 rounded-xl bg-primary/10 text-primary grid place-items-center"><Icon className="w-5 h-5" /></span>
+              <div className="min-w-0">
+                <p className="text-sm font-bold text-foreground leading-tight">{title}</p>
+                <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">{text}</p>
+              </div>
             </div>
+          ))}
+        </div>
+      </section>
 
-            <div className="text-center mt-10">
-              <Link 
-                to="/products" 
-                className="inline-flex items-center gap-2 px-8 py-3 rounded-full bg-primary text-primary-foreground font-bold text-sm hover:opacity-90 transition-opacity"
+      {/* الأقسام */}
+      {categories.length > 0 && (
+        <section className="container mx-auto px-4 mt-14">
+          <SectionTitle subtitle="اختار القسم اللي يناسبك">تسوّق حسب القسم</SectionTitle>
+          <div className="flex gap-3 overflow-x-auto no-scrollbar pb-2 -mx-4 px-4">
+            {categories.map(([cat, count]) => (
+              <Link
+                key={cat}
+                to={`/products?category=${encodeURIComponent(cat)}`}
+                className="shrink-0 w-32 sm:w-40 bg-card border border-border rounded-2xl p-4 text-center shadow-card hover:shadow-card-hover hover:-translate-y-1 hover:border-primary/40 transition-all"
               >
-                عرض جميع المنتجات
-                <ArrowLeft className="w-4 h-4" />
+                <div className="text-3xl mb-2">{CATEGORY_ICONS[cat] || '🛍️'}</div>
+                <p className="text-sm font-bold text-foreground">{cat}</p>
+                <p className="text-xs text-muted-foreground">{count} منتج</p>
               </Link>
-            </div>
-          </>
-        )}
+            ))}
+          </div>
+        </section>
+      )}
 
-        {!loading && !error && featuredProducts.length === 0 && (
-          <div className="text-center py-20 text-muted-foreground">
-            <p className="text-lg mb-4">لا توجد منتجات حالياً</p>
-            <Link 
-              to="/products" 
-              className="inline-block px-6 py-2 rounded-full bg-primary text-primary-foreground font-bold"
-            >
-              تصفح المنتجات
-            </Link>
+      {/* وصل حديثاً */}
+      <section className="container mx-auto px-4 mt-14">
+        <SectionTitle subtitle="أحدث ما وصلنا" action={<ViewAll />}>وصل حديثاً</SectionTitle>
+        {isLoading && <ProductSkeleton count={8} />}
+        {isError && <ErrorState message="فشل تحميل المنتجات" onRetry={refetch} />}
+        {!isLoading && !isError && newest.length > 0 && <ProductGrid products={newest} />}
+        {!isLoading && !isError && newest.length === 0 && (
+          <div className="text-center py-16 text-muted-foreground">لا توجد منتجات حالياً</div>
+        )}
+        {newest.length > 0 && (
+          <div className="text-center mt-10">
+            <Link to="/products" className="btn-primary px-8 py-3">عرض جميع المنتجات <ArrowLeft className="w-4 h-4" /></Link>
           </div>
         )}
       </section>
+
+      {/* العروض */}
+      {onSale.length > 0 && (
+        <section className="container mx-auto px-4 mt-16">
+          <div className="rounded-3xl bg-secondary border border-border p-5 sm:p-8">
+            <SectionTitle subtitle="خصومات لفترة محدودة">🔥 عروض وخصومات</SectionTitle>
+            <ProductGrid products={onSale} />
+          </div>
+        </section>
+      )}
     </Layout>
   );
 };

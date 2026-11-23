@@ -1,44 +1,50 @@
-import { createContext, useContext, useState, useCallback } from 'react';
+import { createContext, useContext, useState, useCallback, useEffect } from 'react';
 import { toast } from 'sonner';
 
 const CartContext = createContext(undefined);
+const KEY = 'lola-cart-v1';
+
+const load = () => {
+  try { return JSON.parse(localStorage.getItem(KEY)) || []; } catch { return []; }
+};
 
 export const CartProvider = ({ children }) => {
-  const [items, setItems] = useState([]);
+  const [items, setItems] = useState(load);
 
-  const addToCart = useCallback((product, color) => {
+  useEffect(() => {
+    try { localStorage.setItem(KEY, JSON.stringify(items)); } catch { /* ignore */ }
+  }, [items]);
+
+  // المفتاح = المنتج + اللون، فنفس المنتج بلونين = سطرين
+  const addToCart = useCallback((product, color, qty = 1) => {
+    const selectedColor = color || product.colors?.[0] || '#000000';
     setItems((prev) => {
-      const existing = prev.find((i) => i.product.id === product.id);
+      const existing = prev.find((i) => i.product.id === product.id && i.selectedColor === selectedColor);
       if (existing) {
-        toast.success('تم تحديث الكمية في السلة');
-        return prev.map((i) =>
-          i.product.id === product.id ? { ...i, quantity: i.quantity + 1 } : i
-        );
+        return prev.map((i) => (i === existing ? { ...i, quantity: i.quantity + qty } : i));
       }
-      toast.success('تمت الإضافة إلى السلة');
-      return [...prev, { product, quantity: 1, selectedColor: color || product.colors[0] }];
+      return [...prev, { product, quantity: qty, selectedColor }];
     });
+    toast.success('تمت الإضافة إلى السلة 🛒');
   }, []);
 
-  const removeFromCart = useCallback((productId) => {
-    setItems((prev) => prev.filter((i) => i.product.id !== productId));
+  const removeFromCart = useCallback((productId, color) => {
+    setItems((prev) => prev.filter((i) => !(i.product.id === productId && i.selectedColor === color)));
     toast.info('تم الحذف من السلة');
   }, []);
 
-  const updateQuantity = useCallback((productId, quantity) => {
-    if (quantity <= 0) {
-      setItems((prev) => prev.filter((i) => i.product.id !== productId));
-      return;
-    }
+  const updateQuantity = useCallback((productId, color, quantity) => {
     setItems((prev) =>
-      prev.map((i) => (i.product.id === productId ? { ...i, quantity } : i))
+      quantity <= 0
+        ? prev.filter((i) => !(i.product.id === productId && i.selectedColor === color))
+        : prev.map((i) => (i.product.id === productId && i.selectedColor === color ? { ...i, quantity: Math.min(quantity, 99) } : i))
     );
   }, []);
 
   const clearCart = useCallback(() => setItems([]), []);
 
-  const totalItems = items.reduce((sum, i) => sum + i.quantity, 0);
-  const totalPrice = items.reduce((sum, i) => sum + i.product.price * i.quantity, 0);
+  const totalItems = items.reduce((s, i) => s + i.quantity, 0);
+  const totalPrice = items.reduce((s, i) => s + i.product.price * i.quantity, 0);
 
   return (
     <CartContext.Provider value={{ items, addToCart, removeFromCart, updateQuantity, clearCart, totalItems, totalPrice }}>
