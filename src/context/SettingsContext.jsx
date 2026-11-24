@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { api } from '../lib/api.js';
 
 export const DEFAULT_SETTINGS = {
-  storeName: 'Lola Store',
+  storeName: 'Mero Store',
   tagline: 'أزياء وإكسسوارات بأحدث الصيحات',
   phone: '01026385348',
   whatsapp: '201026385348',
