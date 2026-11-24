@@ -33,17 +33,42 @@ export const PLACEHOLDER_IMG =
 
 export const formatPrice = (n) => `${Number(n || 0).toLocaleString('en-US')} ج.م`;
 
+// يصغّر ويحسّن صور Cloudinary تلقائياً (أسرع تحميل)
+export const optimize = (url, w = 700) => {
+  if (!url || !url.includes('res.cloudinary.com') || !url.includes('/upload/')) return url;
+  if (/\/upload\/[^/]*(f_auto|w_\d+)/.test(url)) return url;
+  return url.replace('/upload/', `/upload/f_auto,q_auto,w_${w}/`);
+};
+
 // ينظّف المنتج القادم من الـ API لشكل موحّد
-export const normalizeProduct = (p) => ({
-  id: p._id || p.id,
-  name: p.name,
-  description: p.description || '',
-  price: Number(p.price) || 0,
-  image: p.image || '',
-  category: p.category || 'عام',
-  stock: p.stock || 0,
-  colors: Array.isArray(p.colors) && p.colors.filter(Boolean).length ? p.colors.filter(Boolean) : ['#000000'],
-  originalPrice: p.originalPrice || null,
-  badge: p.badge || null,
-  createdAt: p.createdAt,
-});
+export const normalizeProduct = (p) => {
+  const variants = (Array.isArray(p.variants) ? p.variants : [])
+    .filter((v) => v && v.color)
+    .map((v) => ({ color: v.color, images: (v.images || []).filter(Boolean) }));
+  const images = (p.images || []).filter(Boolean);
+  const gallery = images.length ? images : p.image ? [p.image] : [];
+  const colors = variants.length ? variants.map((v) => v.color) : (p.colors || []).filter(Boolean);
+  return {
+    id: p._id || p.id,
+    name: p.name,
+    description: p.description || '',
+    price: Number(p.price) || 0,
+    image: gallery[0] || '',
+    images: gallery,
+    variants,
+    category: p.category || 'عام',
+    stock: p.stock || 0,
+    colors, // ممكن تبقى فاضية = منتج من غير ألوان
+    originalPrice: p.originalPrice || null,
+    badge: p.badge || null,
+    createdAt: p.createdAt,
+  };
+};
+
+// صور المنتج حسب اللون المختار (لو اللون ملوش صور بنرجع الصور الأساسية)
+export const getImages = (product, color) => {
+  const v = color ? product.variants?.find((x) => x.color === color) : null;
+  if (v?.images?.length) return v.images;
+  if (product.images?.length) return product.images;
+  return product.image ? [product.image] : [];
+};

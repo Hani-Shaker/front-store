@@ -1,9 +1,11 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Heart, ShoppingBag } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useCart } from '../context/CartContext.jsx';
 import { useWishlist } from '../context/WishlistContext.jsx';
-import { formatPrice, PLACEHOLDER_IMG } from '../lib/constants.js';
+import AutoSlider from './AutoSlider.jsx';
+import { formatPrice, getImages } from '../lib/constants.js';
 
 const badgeStyles = {
   new: 'bg-badge-new text-white',
@@ -16,6 +18,7 @@ const ProductCard = ({ product, index = 0 }) => {
   const { addToCart } = useCart();
   const { toggleWishlist, isInWishlist } = useWishlist();
   const liked = isInWishlist(product.id);
+  const [color, setColor] = useState(product.colors[0] || null);
 
   const { badge, originalPrice, colors, stock } = product;
   const discount = originalPrice && originalPrice > product.price
@@ -32,13 +35,7 @@ const ProductCard = ({ product, index = 0 }) => {
     >
       <div className="relative aspect-square overflow-hidden bg-muted">
         <Link to={`/products/${product.id}`} aria-label={product.name}>
-          <img
-            src={product.image || PLACEHOLDER_IMG}
-            alt={product.name}
-            loading="lazy"
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-            onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = PLACEHOLDER_IMG; }}
-          />
+          <AutoSlider images={getImages(product, color)} alt={product.name} className="group-hover:scale-105 transition-transform duration-500" />
         </Link>
 
         <div className="absolute top-3 right-3 flex flex-col gap-1.5 items-start">
@@ -70,12 +67,15 @@ const ProductCard = ({ product, index = 0 }) => {
           <h3 className="text-sm font-bold text-card-foreground leading-snug line-clamp-2 min-h-[2.5rem] hover:text-primary transition-colors">{product.name}</h3>
         </Link>
 
-        <div className="flex items-center gap-1.5">
-          {colors.slice(0, 5).map((c, i) => (
-            <span key={i} className="w-3.5 h-3.5 rounded-full border border-border ring-1 ring-card" style={{ backgroundColor: c }} title={c} />
-          ))}
-          {colors.length > 5 && <span className="text-[10px] text-muted-foreground">+{colors.length - 5}</span>}
-        </div>
+        {colors.length > 0 && (
+          <div className="flex items-center gap-1.5" role="radiogroup" aria-label="اللون">
+            {colors.slice(0, 6).map((c) => (
+              <button key={c} type="button" role="radio" aria-checked={color === c} aria-label={`اللون ${c}`} onClick={() => setColor(c)}
+                className={`w-5 h-5 rounded-full border transition ${color === c ? 'border-primary ring-2 ring-primary/30 scale-110' : 'border-border'}`} style={{ backgroundColor: c }} />
+            ))}
+            {colors.length > 6 && <span className="text-[10px] text-muted-foreground">+{colors.length - 6}</span>}
+          </div>
+        )}
 
         <div className="flex items-center justify-between mt-auto pt-1">
           <div className="flex flex-col leading-tight">
@@ -83,7 +83,7 @@ const ProductCard = ({ product, index = 0 }) => {
             {discount > 0 && <span className="text-xs text-muted-foreground line-through">{formatPrice(originalPrice)}</span>}
           </div>
           <button
-            onClick={() => addToCart(product)}
+            onClick={() => addToCart(product, color)}
             aria-label={`أضف ${product.name} للسلة`}
             className="w-10 h-10 rounded-full bg-primary text-primary-foreground grid place-items-center hover:bg-primary/90 active:scale-90 transition"
           >

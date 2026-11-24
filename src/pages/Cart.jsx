@@ -7,7 +7,7 @@ import SectionTitle from '../components/SectionTitle.jsx';
 import { useCart } from '../context/CartContext.jsx';
 import { useSettings } from '../context/SettingsContext.jsx';
 import { api } from '../lib/api.js';
-import { formatPrice, PLACEHOLDER_IMG } from '../lib/constants.js';
+import { formatPrice, PLACEHOLDER_IMG, getImages, optimize } from '../lib/constants.js';
 
 const EMPTY = { name: '', phone: '', email: '', address: '', city: '', notes: '' };
 const PHONE_RE = /^(\+?20|0)?1[0125]\d{8}$/;
@@ -46,7 +46,7 @@ const Cart = () => {
             price: i.product.price,
             quantity: i.quantity,
             selectedColor: i.selectedColor,
-            image: i.product.image,
+            image: getImages(i.product, i.selectedColor)[0] || i.product.image,
             category: i.product.category,
           })),
         },
@@ -117,13 +117,13 @@ const Cart = () => {
             {items.map((item) => (
               <div key={`${item.product.id}-${item.selectedColor}`} className="flex items-center gap-3 sm:gap-4 bg-card rounded-2xl p-3 sm:p-4 border border-border shadow-card">
                 <Link to={`/products/${item.product.id}`} className="shrink-0">
-                  <img src={item.product.image || PLACEHOLDER_IMG} alt={item.product.name} className="w-20 h-20 rounded-xl object-cover"
+                  <img src={optimize(getImages(item.product, item.selectedColor)[0] || item.product.image, 200) || PLACEHOLDER_IMG} alt={item.product.name} className="w-20 h-20 rounded-xl object-cover"
                     onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = PLACEHOLDER_IMG; }} />
                 </Link>
                 <div className="flex-1 min-w-0">
                   <h4 className="text-sm font-bold truncate">{item.product.name}</h4>
                   <div className="flex items-center gap-2 mt-1 text-xs text-muted-foreground">
-                    <span className="w-3.5 h-3.5 rounded-full border border-border" style={{ backgroundColor: item.selectedColor }} />
+                    {item.selectedColor && <span className="w-3.5 h-3.5 rounded-full border border-border" style={{ backgroundColor: item.selectedColor }} />}
                     <span>{formatPrice(item.product.price)}</span>
                   </div>
                   <div className="flex items-center justify-between mt-2">
@@ -149,7 +149,7 @@ const Cart = () => {
                 <span className="font-black text-xl text-primary">{formatPrice(totalPrice + fee)}</span>
               </div>
             </div>
-            <p className="text-xs text-center text-muted-foreground bg-accent/20 rounded-xl p-3">💬 سيتم التواصل معك لتأكيد الطلب · الدفع عند الاستلام</p>
+            <p className="text-xs text-center text-muted-foreground bg-accent/20 rounded-xl p-3">💬 سيتم التواصل معك لتأكيد الطلب ·</p>
           </div>
 
           <form onSubmit={handleSubmit} className="lg:col-span-2 flex flex-col gap-3.5 bg-card p-5 sm:p-6 rounded-2xl border border-border shadow-card lg:sticky lg:top-24">

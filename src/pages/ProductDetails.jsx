@@ -1,7 +1,7 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { Heart, Minus, Plus, ShoppingBag, ChevronLeft, Truck } from 'lucide-react';
+import { Heart, Minus, Plus, ShoppingBag, ChevronLeft, ChevronRight, Truck } from 'lucide-react';
 import Layout from '../components/layout/Layout.jsx';
 import ProductGrid from '../components/ProductGrid.jsx';
 import ErrorState from '../components/ErrorState.jsx';
@@ -9,7 +9,7 @@ import { useCart } from '../context/CartContext.jsx';
 import { useWishlist } from '../context/WishlistContext.jsx';
 import { useProducts } from '../hooks/useProducts.js';
 import { productService } from '../services/productService.js';
-import { formatPrice, normalizeProduct, PLACEHOLDER_IMG } from '../lib/constants.js';
+import { formatPrice, normalizeProduct, PLACEHOLDER_IMG, getImages, optimize } from '../lib/constants.js';
 
 const ProductDetails = () => {
   const { id } = useParams();
@@ -18,6 +18,8 @@ const ProductDetails = () => {
   const { data: all = [] } = useProducts();
   const [qty, setQty] = useState(1);
   const [color, setColor] = useState(null);
+  const [idx, setIdx] = useState(0);
+  const [manual, setManual] = useState(false);
 
   const { data, isLoading, isError, error, refetch } = useQuery({
     queryKey: ['product', id],
@@ -28,6 +30,21 @@ const ProductDetails = () => {
     () => all.filter((p) => data && p.id !== data.id && p.category === data.category).slice(0, 4),
     [all, data]
   );
+
+  const selected = color || data?.colors?.[0] || null;
+  const images = data ? getImages(data, selected) : [];
+
+  // لما اللون يتغير نرجع لأول صورة
+  useEffect(() => { setIdx(0); }, [selected, data?.id]);
+
+  // تقليب تلقائي لحد ما العميل يتحكم بنفسه
+  useEffect(() => {
+    if (images.length < 2 || manual) return;
+    const t = setInterval(() => setIdx((i) => (i + 1) % images.length), 4000);
+    return () => clearInterval(t);
+  }, [images.length, manual]);
+
+  const go = (i) => { setManual(true); setIdx((i + images.length) % images.length); };
 
   if (isLoading) {
     return (
@@ -49,7 +66,6 @@ const ProductDetails = () => {
     );
   }
 
-  const selected = color || data.colors[0];
   const liked = isInWishlist(data.id);
   const discount = data.originalPrice > data.price ? Math.round(((data.originalPrice - data.price) / data.originalPrice) * 100) : 0;
 
@@ -63,10 +79,31 @@ const ProductDetails = () => {
         </nav>
 
         <div className="grid md:grid-cols-2 gap-8 lg:gap-14">
-          <div className="relative aspect-square rounded-3xl overflow-hidden bg-muted border border-border shadow-card">
-            <img src={data.image || PLACEHOLDER_IMG} alt={data.name} className="w-full h-full object-cover"
-              onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = PLACEHOLDER_IMG; }} />
-            {discount > 0 && <span className="absolute top-4 right-4 bg-destructive text-destructive-foreground text-xs font-bold px-3 py-1.5 rounded-full shadow">وفّر {discount}%</span>}
+          <div>
+            <div className="relative aspect-square rounded-3xl overflow-hidden bg-muted border border-border shadow-card">
+              {(images.length ? images : [PLACEHOLDER_IMG]).map((src, i) => (
+                <img key={src + i} src={src === PLACEHOLDER_IMG ? src : optimize(src, 1000)} alt={i === idx ? data.name : ''}
+                  className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${i === idx ? 'opacity-100' : 'opacity-0'}`}
+                  onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = PLACEHOLDER_IMG; }} />
+              ))}
+              {discount > 0 && <span className="absolute top-4 right-4 bg-destructive text-destructive-foreground text-xs font-bold px-3 py-1.5 rounded-full shadow">وفّر {discount}%</span>}
+              {images.length > 1 && (
+                <>
+                  <button onClick={() => go(idx + 1)} aria-label="التالي" className="absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-card/80 backdrop-blur grid place-items-center shadow"><ChevronLeft className="w-4 h-4" /></button>
+                  <button onClick={() => go(idx - 1)} aria-label="السابق" className="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-card/80 backdrop-blur grid place-items-center shadow"><ChevronRight className="w-4 h-4" /></button>
+                </>
+              )}
+            </div>
+            {images.length > 1 && (
+              <div className="flex gap-2 mt-3 overflow-x-auto no-scrollbar pb-1">
+                {images.map((src, i) => (
+                  <button key={src + i} onClick={() => go(i)} aria-label={`صورة ${i + 1}`} aria-current={i === idx}
+                    className={`shrink-0 w-16 h-16 rounded-xl overflow-hidden border-2 transition ${i === idx ? 'border-primary' : 'border-transparent opacity-70 hover:opacity-100'}`}>
+                    <img src={optimize(src, 160)} alt="" className="w-full h-full object-cover" />
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
 
           <div className="flex flex-col">
@@ -80,6 +117,7 @@ const ProductDetails = () => {
 
             {data.description && <p className="text-sm text-muted-foreground leading-loose mt-5 whitespace-pre-line">{data.description}</p>}
 
+            {data.colors.length > 0 && (
             <div className="mt-6">
               <p className="text-sm font-bold mb-2">اللون</p>
               <div className="flex flex-wrap gap-2.5">
@@ -90,6 +128,7 @@ const ProductDetails = () => {
                 ))}
               </div>
             </div>
+            )}
 
             <div className="mt-6">
               <p className="text-sm font-bold mb-2">الكمية</p>
@@ -110,7 +149,7 @@ const ProductDetails = () => {
             </div>
 
             <div className="mt-6 flex items-center gap-2 text-xs text-muted-foreground bg-muted rounded-xl p-3">
-              <Truck className="w-4 h-4 shrink-0" /> التوصيل لكل المحافظات والدفع عند الاستلام
+              <Truck className="w-4 h-4 shrink-0" /> التوصيل داخل الفيوم
             </div>
           </div>
         </div>

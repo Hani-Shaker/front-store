@@ -17,7 +17,7 @@ export const CartProvider = ({ children }) => {
 
   // المفتاح = المنتج + اللون، فنفس المنتج بلونين = سطرين
   const addToCart = useCallback((product, color, qty = 1) => {
-    const selectedColor = color || product.colors?.[0] || '#000000';
+    const selectedColor = color || product.colors?.[0] || null; // null = منتج من غير ألوان
     setItems((prev) => {
       const existing = prev.find((i) => i.product.id === product.id && i.selectedColor === selectedColor);
       if (existing) {

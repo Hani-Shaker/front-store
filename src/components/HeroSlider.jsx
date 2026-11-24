@@ -4,7 +4,7 @@ import { ChevronLeft, ChevronRight, ArrowLeft } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useCart } from '../context/CartContext.jsx';
 import { useSettings } from '../context/SettingsContext.jsx';
-import { formatPrice, PLACEHOLDER_IMG } from '../lib/constants.js';
+import { formatPrice, PLACEHOLDER_IMG, optimize } from '../lib/constants.js';
 
 const HeroSlider = ({ products = [] }) => {
   const [current, setCurrent] = useState(0);
@@ -75,7 +75,7 @@ const HeroSlider = ({ products = [] }) => {
             <AnimatePresence mode="wait">
               <motion.img
                 key={product.id}
-                src={product.image || PLACEHOLDER_IMG}
+                src={optimize(product.image, 800) || PLACEHOLDER_IMG}
                 alt={product.name}
                 initial={{ opacity: 0, scale: 0.92, rotate: -2 }}
                 animate={{ opacity: 1, scale: 1, rotate: 0 }}

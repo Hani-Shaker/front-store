@@ -34,10 +34,10 @@ const Index = () => {
   }, [products]);
 
   const features = [
-    { Icon: Truck, title: 'توصيل داخل الفيوم فقط', text: freeShippingThreshold > 0 ? `شحن مجاني فوق ${formatPrice(freeShippingThreshold)}` : `رسوم التوصيل ${formatPrice(deliveryFee)}` },
-    { Icon: ShieldCheck, title: 'الدفع عند الاستلام', text: 'ادفع بعد ما تستلم طلبك' },
+    { Icon: Truck, title: 'توصيل داخل الفيوم', text: freeShippingThreshold > 0 ? `شحن مجاني فوق ${formatPrice(freeShippingThreshold)}` : `رسوم التوصيل ${formatPrice(deliveryFee)}` },
+    { Icon: ShieldCheck, title: 'الدفع عند الطلب', text: 'ادفع قبل ما تستلم طلبك😍' },
     { Icon: Gift, title: 'منتجات مختارة', text: 'جودة عالية وأسعار مناسبة' },
-    { Icon: Headphones, title: 'دعم سريع', text: 'تواصل معنا واتساب أو تليفون' },
+    { Icon: Headphones, title: 'دعم سريع', text: 'تواصل معنا واتساب' },
   ];
 
   return (
