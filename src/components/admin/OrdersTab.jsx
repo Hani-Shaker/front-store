@@ -3,7 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Phone, MessageCircle, Trash2, Pencil } from 'lucide-react';
 import { toast } from 'sonner';
 import { api } from '../../lib/api.js';
-import { ORDER_STATUS, formatPrice, PLACEHOLDER_IMG } from '../../lib/constants.js';
+import { ORDER_STATUS, formatPrice, PLACEHOLDER_IMG, optimize } from '../../lib/constants.js';
 import { Modal, Field, Empty, fmtDate } from './ui.jsx';
 
 const waLink = (phone) => {
@@ -87,14 +87,21 @@ const OrdersTab = () => {
                     </div>
 
                     <div className="grid gap-2">
-                      {o.items?.map((it, i) => (
-                        <div key={i} className="flex items-center gap-3 bg-card rounded-xl p-2 border border-border">
-                          <img src={it.image || PLACEHOLDER_IMG} alt="" className="w-12 h-12 rounded-lg object-cover" onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = PLACEHOLDER_IMG; }} />
-                          <div className="flex-1 min-w-0 text-sm"><p className="font-bold truncate">{it.name}</p>
-                            <p className="text-xs text-muted-foreground flex items-center gap-1.5">{it.selectedColor && <span className="w-3 h-3 rounded-full border border-border" style={{ backgroundColor: it.selectedColor }} />}× {it.quantity} · {formatPrice(it.price)}</p></div>
-                          <b className="text-sm">{formatPrice(it.price * it.quantity)}</b>
-                        </div>
-                      ))}
+                      {o.items?.map((it, i) => {
+                        const chosen = it.selectedImage || it.image;
+                        return (
+                          <div key={i} className="flex items-center gap-3 bg-card rounded-xl p-2 border border-border">
+                            <a href={chosen} target="_blank" rel="noopener noreferrer" title="فتح الصورة بالحجم الكامل" className="relative shrink-0">
+                              <img src={optimize(chosen, 200) || PLACEHOLDER_IMG} alt="" className="w-20 h-20 rounded-lg object-cover" onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = PLACEHOLDER_IMG; }} />
+                              {it.selectedImageIndex && <span className="absolute -top-1.5 -right-1.5 min-w-[22px] h-[22px] px-1 rounded-full bg-primary text-primary-foreground text-[11px] font-bold grid place-items-center shadow">{it.selectedImageIndex}</span>}
+                            </a>
+                            <div className="flex-1 min-w-0 text-sm"><p className="font-bold truncate">{it.name}</p>
+                              <p className="text-xs text-muted-foreground flex items-center gap-1.5 flex-wrap">{it.selectedColor && <span className="w-3 h-3 rounded-full border border-border" style={{ backgroundColor: it.selectedColor }} />}× {it.quantity} · {formatPrice(it.price)}</p>
+                              {it.selectedImageIndex && <p className="text-xs font-bold text-primary mt-0.5">العميل اختار الصورة رقم {it.selectedImageIndex}</p>}</div>
+                            <b className="text-sm">{formatPrice(it.price * it.quantity)}</b>
+                          </div>
+                        );
+                      })}
                       <div className="text-sm text-muted-foreground flex justify-between px-1"><span>المنتجات {formatPrice(o.totalPrice)} + توصيل {formatPrice(o.deliveryFee)}</span><b className="text-foreground">الإجمالي {formatPrice(o.total)}</b></div>
                     </div>
 

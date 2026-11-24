@@ -8,7 +8,7 @@ import { Modal, Field, Empty } from './ui.jsx';
 import ImageListEditor from './ImageListEditor.jsx';
 import BulkAddModal from './BulkAddModal.jsx';
 
-const blank = { name: '', description: '', price: '', originalPrice: '', stock: '', category: 'إلكترونيات', badge: '', images: [], hasColors: false, variants: [] };
+const blank = { name: '', description: '', price: '', originalPrice: '', stock: '', category: 'إلكترونيات', badge: '', images: [], pickImage: true, hasColors: false, variants: [] };
 
 const ProductForm = ({ initial, onClose, onSave, saving }) => {
   const [f, setF] = useState(initial);
@@ -32,6 +32,7 @@ const ProductForm = ({ initial, onClose, onSave, saving }) => {
       originalPrice: f.originalPrice === '' || f.originalPrice === null ? null : Number(f.originalPrice),
       badge: f.badge || null,
       images: f.images,
+      pickImage: f.pickImage,
       variants: f.hasColors ? f.variants : [],
     });
   };
@@ -55,6 +56,14 @@ const ProductForm = ({ initial, onClose, onSave, saving }) => {
         <p className="text-[11px] text-muted-foreground mb-2">لو رفعت أكتر من صورة بتتقلب لوحدها على كارت المنتج. النجمة = الصورة الرئيسية.</p>
         <ImageListEditor images={f.images} onChange={(v) => set('images', v)} />
       </div>
+
+      <label className={`flex items-start gap-3 rounded-2xl border p-3 cursor-pointer transition ${f.pickImage ? 'border-primary bg-primary/5' : 'border-border'}`}>
+        <input type="checkbox" checked={f.pickImage} onChange={(e) => set('pickImage', e.target.checked)} className="w-5 h-5 mt-0.5 accent-[hsl(var(--primary))]" />
+        <span>
+          <span className="text-sm font-bold block">العميل يختار الصورة اللي تعجبه</span>
+          <span className="text-[11px] text-muted-foreground">كل صورة بتبقى تصميم/اختيار. العميل يختار واحدة، والاختيار بيظهر لك في الطلب (صورة ورقمها). مفيد لما تضيف منتج واحد بكذا تصميم. أطفيها لو الصور كلها زوايا لنفس المنتج.</span>
+        </span>
+      </label>
 
       <div className="rounded-2xl border border-border p-4 bg-muted/30">
         <label className="flex items-center gap-3 cursor-pointer">
@@ -127,6 +136,7 @@ const ProductsTab = () => {
       name: p.name, description: p.description, price: p.price, originalPrice: p.originalPrice ?? '',
       stock: p.stock ?? 0, category: p.category, badge: p.badge || '',
       images: p.images,
+      pickImage: !!raw.pickImage,
       hasColors: p.colors.length > 0,
       variants: p.variants.length ? p.variants : p.colors.map((c) => ({ color: c, images: [] })),
     };

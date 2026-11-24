@@ -46,7 +46,9 @@ const Cart = () => {
             price: i.product.price,
             quantity: i.quantity,
             selectedColor: i.selectedColor,
-            image: getImages(i.product, i.selectedColor)[0] || i.product.image,
+            image: i.selectedImage || getImages(i.product, i.selectedColor)[0] || i.product.image,
+            selectedImage: i.selectedImage || undefined,
+            selectedImageIndex: i.selectedImageIndex || undefined,
             category: i.product.category,
           })),
         },
@@ -115,9 +117,9 @@ const Cart = () => {
             )}
 
             {items.map((item) => (
-              <div key={`${item.product.id}-${item.selectedColor}`} className="flex items-center gap-3 sm:gap-4 bg-card rounded-2xl p-3 sm:p-4 border border-border shadow-card">
+              <div key={`${item.product.id}-${item.selectedColor}-${item.selectedImage}`} className="flex items-center gap-3 sm:gap-4 bg-card rounded-2xl p-3 sm:p-4 border border-border shadow-card">
                 <Link to={`/products/${item.product.id}`} className="shrink-0">
-                  <img src={optimize(getImages(item.product, item.selectedColor)[0] || item.product.image, 200) || PLACEHOLDER_IMG} alt={item.product.name} className="w-20 h-20 rounded-xl object-cover"
+                  <img src={optimize(item.selectedImage || getImages(item.product, item.selectedColor)[0] || item.product.image, 200) || PLACEHOLDER_IMG} alt={item.product.name} className="w-20 h-20 rounded-xl object-cover"
                     onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = PLACEHOLDER_IMG; }} />
                 </Link>
                 <div className="flex-1 min-w-0">
@@ -125,17 +127,18 @@ const Cart = () => {
                   <div className="flex items-center gap-2 mt-1 text-xs text-muted-foreground">
                     {item.selectedColor && <span className="w-3.5 h-3.5 rounded-full border border-border" style={{ backgroundColor: item.selectedColor }} />}
                     <span>{formatPrice(item.product.price)}</span>
+                    {item.selectedImageIndex && <span className="bg-primary/10 text-primary font-bold rounded-full px-2 py-0.5">الصورة رقم {item.selectedImageIndex}</span>}
                   </div>
                   <div className="flex items-center justify-between mt-2">
                     <div className="inline-flex items-center rounded-lg border border-border">
-                      <button onClick={() => updateQuantity(item.product.id, item.selectedColor, item.quantity - 1)} aria-label="تقليل" className="w-8 h-8 grid place-items-center hover:bg-muted rounded-s-lg"><Minus className="w-3 h-3" /></button>
+                      <button onClick={() => updateQuantity(item.product.id, item.selectedColor, item.quantity - 1, item.selectedImage)} aria-label="تقليل" className="w-8 h-8 grid place-items-center hover:bg-muted rounded-s-lg"><Minus className="w-3 h-3" /></button>
                       <span className="w-8 text-center text-sm font-bold">{item.quantity}</span>
-                      <button onClick={() => updateQuantity(item.product.id, item.selectedColor, item.quantity + 1)} aria-label="زيادة" className="w-8 h-8 grid place-items-center hover:bg-muted rounded-e-lg"><Plus className="w-3 h-3" /></button>
+                      <button onClick={() => updateQuantity(item.product.id, item.selectedColor, item.quantity + 1, item.selectedImage)} aria-label="زيادة" className="w-8 h-8 grid place-items-center hover:bg-muted rounded-e-lg"><Plus className="w-3 h-3" /></button>
                     </div>
                     <span className="text-sm font-extrabold">{formatPrice(item.product.price * item.quantity)}</span>
                   </div>
                 </div>
-                <button onClick={() => removeFromCart(item.product.id, item.selectedColor)} aria-label="حذف" className="w-9 h-9 shrink-0 rounded-full hover:bg-destructive/10 grid place-items-center transition">
+                <button onClick={() => removeFromCart(item.product.id, item.selectedColor, item.selectedImage)} aria-label="حذف" className="w-9 h-9 shrink-0 rounded-full hover:bg-destructive/10 grid place-items-center transition">
                   <Trash2 className="w-4 h-4 text-destructive" />
                 </button>
               </div>
@@ -149,7 +152,7 @@ const Cart = () => {
                 <span className="font-black text-xl text-primary">{formatPrice(totalPrice + fee)}</span>
               </div>
             </div>
-            <p className="text-xs text-center text-muted-foreground bg-accent/20 rounded-xl p-3">💬 سيتم التواصل معك لتأكيد الطلب ·</p>
+            <p className="text-xs text-center text-muted-foreground bg-accent/20 rounded-xl p-3">💬 سيتم التواصل معك لتأكيد الطلب · الدفع عند الاستلام</p>
           </div>
 
           <form onSubmit={handleSubmit} className="lg:col-span-2 flex flex-col gap-3.5 bg-card p-5 sm:p-6 rounded-2xl border border-border shadow-card lg:sticky lg:top-24">

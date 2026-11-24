@@ -57,7 +57,7 @@ const HeroSlider = ({ products = [] }) => {
                 ) : tagline}
               </p>
               <div className="flex flex-wrap gap-3 justify-center md:justify-start">
-                {product && (
+                {product && !product.pickImage && (
                   <button onClick={() => addToCart(product)} className="btn bg-accent text-accent-foreground hover:opacity-90 px-6 py-3 shadow-lg">
                     أضف للسلة
                   </button>

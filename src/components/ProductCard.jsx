@@ -38,6 +38,12 @@ const ProductCard = ({ product, index = 0 }) => {
           <AutoSlider images={getImages(product, color)} alt={product.name} className="group-hover:scale-105 transition-transform duration-500" />
         </Link>
 
+        {product.pickImage && (
+          <span className="absolute bottom-3 left-3 bg-card/90 backdrop-blur text-foreground text-[10px] font-bold px-2.5 py-1 rounded-full shadow">
+            {getImages(product, color).length} تصميمات
+          </span>
+        )}
+
         <div className="absolute top-3 right-3 flex flex-col gap-1.5 items-start">
           {badge && badgeLabels[badge] && (
             <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full shadow ${badgeStyles[badge]}`}>{badgeLabels[badge]}</span>
@@ -82,13 +88,19 @@ const ProductCard = ({ product, index = 0 }) => {
             <span className="text-base font-extrabold text-foreground">{formatPrice(product.price)}</span>
             {discount > 0 && <span className="text-xs text-muted-foreground line-through">{formatPrice(originalPrice)}</span>}
           </div>
-          <button
-            onClick={() => addToCart(product, color)}
-            aria-label={`أضف ${product.name} للسلة`}
-            className="w-10 h-10 rounded-full bg-primary text-primary-foreground grid place-items-center hover:bg-primary/90 active:scale-90 transition"
-          >
-            <ShoppingBag className="w-4 h-4" />
-          </button>
+          {product.pickImage ? (
+            <Link to={`/products/${product.id}`} className="h-10 px-3.5 rounded-full bg-primary text-primary-foreground inline-flex items-center gap-1.5 text-xs font-bold hover:bg-primary/90 active:scale-95 transition">
+              اختر التصميم
+            </Link>
+          ) : (
+            <button
+              onClick={() => addToCart(product, color)}
+              aria-label={`أضف ${product.name} للسلة`}
+              className="w-10 h-10 rounded-full bg-primary text-primary-foreground grid place-items-center hover:bg-primary/90 active:scale-90 transition"
+            >
+              <ShoppingBag className="w-4 h-4" />
+            </button>
+          )}
         </div>
       </div>
     </motion.article>

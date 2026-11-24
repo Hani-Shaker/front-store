@@ -1,7 +1,7 @@
 import { useState, useMemo, useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { Heart, Minus, Plus, ShoppingBag, ChevronLeft, ChevronRight, Truck } from 'lucide-react';
+import { Heart, Minus, Plus, ShoppingBag, ChevronLeft, ChevronRight, Truck, Check } from 'lucide-react';
 import Layout from '../components/layout/Layout.jsx';
 import ProductGrid from '../components/ProductGrid.jsx';
 import ErrorState from '../components/ErrorState.jsx';
@@ -39,10 +39,10 @@ const ProductDetails = () => {
 
   // تقليب تلقائي لحد ما العميل يتحكم بنفسه
   useEffect(() => {
-    if (images.length < 2 || manual) return;
+    if (images.length < 2 || manual || data?.pickImage) return;
     const t = setInterval(() => setIdx((i) => (i + 1) % images.length), 4000);
     return () => clearInterval(t);
-  }, [images.length, manual]);
+  }, [images.length, manual, data?.pickImage]);
 
   const go = (i) => { setManual(true); setIdx((i + images.length) % images.length); };
 
@@ -95,14 +95,31 @@ const ProductDetails = () => {
               )}
             </div>
             {images.length > 1 && (
-              <div className="flex gap-2 mt-3 overflow-x-auto no-scrollbar pb-1">
-                {images.map((src, i) => (
-                  <button key={src + i} onClick={() => go(i)} aria-label={`صورة ${i + 1}`} aria-current={i === idx}
-                    className={`shrink-0 w-16 h-16 rounded-xl overflow-hidden border-2 transition ${i === idx ? 'border-primary' : 'border-transparent opacity-70 hover:opacity-100'}`}>
-                    <img src={optimize(src, 160)} alt="" className="w-full h-full object-cover" />
-                  </button>
-                ))}
-              </div>
+              data.pickImage ? (
+                <div className="mt-4">
+                  <p className="text-sm font-bold mb-2">اختر الصورة / التصميم اللي عايزه <span className="text-muted-foreground font-normal">(مختار: رقم {idx + 1})</span></p>
+                  <div className="grid grid-cols-4 sm:grid-cols-5 gap-2" role="radiogroup" aria-label="اختيار التصميم">
+                    {images.map((src, i) => (
+                      <button key={src + i} type="button" role="radio" aria-checked={i === idx} onClick={() => go(i)} aria-label={`التصميم ${i + 1}`}
+                        className={`relative aspect-square rounded-xl overflow-hidden border-2 transition ${i === idx ? 'border-primary ring-2 ring-primary/30' : 'border-border opacity-80 hover:opacity-100'}`}>
+                        <img src={optimize(src, 220)} alt="" className="w-full h-full object-cover" />
+                        <span className={`absolute top-1 right-1 min-w-[20px] h-5 px-1 rounded-full text-[10px] font-bold grid place-items-center ${i === idx ? 'bg-primary text-primary-foreground' : 'bg-card/90 text-foreground'}`}>
+                          {i === idx ? <Check className="w-3 h-3" /> : i + 1}
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <div className="flex gap-2 mt-3 overflow-x-auto no-scrollbar pb-1">
+                  {images.map((src, i) => (
+                    <button key={src + i} onClick={() => go(i)} aria-label={`صورة ${i + 1}`} aria-current={i === idx}
+                      className={`shrink-0 w-16 h-16 rounded-xl overflow-hidden border-2 transition ${i === idx ? 'border-primary' : 'border-transparent opacity-70 hover:opacity-100'}`}>
+                      <img src={optimize(src, 160)} alt="" className="w-full h-full object-cover" />
+                    </button>
+                  ))}
+                </div>
+              )
             )}
           </div>
 
@@ -140,7 +157,7 @@ const ProductDetails = () => {
             </div>
 
             <div className="flex gap-3 mt-8">
-              <button onClick={() => addToCart(data, selected, qty)} className="btn-primary flex-1 py-3.5 text-base">
+              <button onClick={() => (data.pickImage ? addToCart(data, selected, qty, images[idx], idx + 1) : addToCart(data, selected, qty))} className="btn-primary flex-1 py-3.5 text-base">
                 <ShoppingBag className="w-5 h-5" /> أضف للسلة
               </button>
               <button onClick={() => toggleWishlist(data)} aria-label="المفضلة" aria-pressed={liked} className="btn-outline w-14 !px-0">
@@ -149,7 +166,7 @@ const ProductDetails = () => {
             </div>
 
             <div className="mt-6 flex items-center gap-2 text-xs text-muted-foreground bg-muted rounded-xl p-3">
-              <Truck className="w-4 h-4 shrink-0" /> التوصيل داخل الفيوم
+              <Truck className="w-4 h-4 shrink-0" /> التوصيل داخل الفيوم فقط. الدفع عند الطلب
             </div>
           </div>
         </div>

@@ -2,7 +2,7 @@ import { createContext, useContext, useState, useCallback, useEffect } from 'rea
 import { toast } from 'sonner';
 
 const CartContext = createContext(undefined);
-const KEY = 'lola-cart-v1';
+const KEY = 'Mero-cart-v1';
 
 const load = () => {
   try { return JSON.parse(localStorage.getItem(KEY)) || []; } catch { return []; }
@@ -15,29 +15,30 @@ export const CartProvider = ({ children }) => {
     try { localStorage.setItem(KEY, JSON.stringify(items)); } catch { /* ignore */ }
   }, [items]);
 
-  // المفتاح = المنتج + اللون، فنفس المنتج بلونين = سطرين
-  const addToCart = useCallback((product, color, qty = 1) => {
+  // المفتاح = المنتج + اللون + الصورة المختارة، فنفس المنتج بتصميمين = سطرين
+  const same = (i, id, color, image) =>
+    i.product.id === id && (i.selectedColor ?? null) === (color ?? null) && (i.selectedImage ?? null) === (image ?? null);
+
+  const addToCart = useCallback((product, color, qty = 1, image = null, imageIndex = null) => {
     const selectedColor = color || product.colors?.[0] || null; // null = منتج من غير ألوان
     setItems((prev) => {
-      const existing = prev.find((i) => i.product.id === product.id && i.selectedColor === selectedColor);
-      if (existing) {
-        return prev.map((i) => (i === existing ? { ...i, quantity: i.quantity + qty } : i));
-      }
-      return [...prev, { product, quantity: qty, selectedColor }];
+      const existing = prev.find((i) => same(i, product.id, selectedColor, image));
+      if (existing) return prev.map((i) => (i === existing ? { ...i, quantity: i.quantity + qty } : i));
+      return [...prev, { product, quantity: qty, selectedColor, selectedImage: image, selectedImageIndex: imageIndex }];
     });
     toast.success('تمت الإضافة إلى السلة 🛒');
   }, []);
 
-  const removeFromCart = useCallback((productId, color) => {
-    setItems((prev) => prev.filter((i) => !(i.product.id === productId && i.selectedColor === color)));
+  const removeFromCart = useCallback((productId, color, image = null) => {
+    setItems((prev) => prev.filter((i) => !same(i, productId, color, image)));
     toast.info('تم الحذف من السلة');
   }, []);
 
-  const updateQuantity = useCallback((productId, color, quantity) => {
+  const updateQuantity = useCallback((productId, color, quantity, image = null) => {
     setItems((prev) =>
       quantity <= 0
-        ? prev.filter((i) => !(i.product.id === productId && i.selectedColor === color))
-        : prev.map((i) => (i.product.id === productId && i.selectedColor === color ? { ...i, quantity: Math.min(quantity, 99) } : i))
+        ? prev.filter((i) => !same(i, productId, color, image))
+        : prev.map((i) => (same(i, productId, color, image) ? { ...i, quantity: Math.min(quantity, 99) } : i))
     );
   }, []);
 

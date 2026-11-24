@@ -61,6 +61,7 @@ export const normalizeProduct = (p) => {
     colors, // ممكن تبقى فاضية = منتج من غير ألوان
     originalPrice: p.originalPrice || null,
     badge: p.badge || null,
+    pickImage: !!p.pickImage && (gallery.length > 1 || variants.some((v) => v.images.length > 1)),
     createdAt: p.createdAt,
   };
 };

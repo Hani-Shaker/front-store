@@ -2,7 +2,7 @@ import { createContext, useContext, useState, useCallback, useEffect } from 'rea
 import { toast } from 'sonner';
 
 const WishlistContext = createContext(undefined);
-const KEY = 'lola-wishlist-v1';
+const KEY = 'Mero-wishlist-v1';
 
 const load = () => {
   try { return JSON.parse(localStorage.getItem(KEY)) || []; } catch { return []; }
